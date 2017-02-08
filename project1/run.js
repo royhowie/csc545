@@ -1,24 +1,13 @@
 let Tree = require('./general.js').Tree
 let Puzzle = require('./puzzle.js').Puzzle
-let Node = require('./node.js').Node
+let nodes = require('./node.js')
 let PriorityQueue = require('priorityqueuejs')
 
-class A_Node extends Node {
-  constructor (hash, parent, depth, goal) {
-    super(hash, parent)
-    this.g = depth
-    this.h = Puzzle.heuristic(hash, goal, 3)
-    this.score = this.g + this.h
-  }
-}
-
-const GOAL_HASH = {
-  3: '123456780',
-  4: '123456789abcdef0',
-}
-
-let size = 3
-let goal = GOAL_HASH[3]
+const { Node, A_Node } = nodes
+const GOAL_HASH = { 3: '123456780', 4: '123456789abcdef0' }
+const size = 3
+const goal = GOAL_HASH[size]
+const TRIALS = 1000
 
 const methods = {
   BFS: {
@@ -38,15 +27,25 @@ const methods = {
   },
 }
 
-console.log('name len success open closed depth')
-for (let i = 0; i < 10; i++) {
+console.log(
+  [
+    'index',
+    'BFS_open', 'BFS_closed', 'BFS_depth',
+    'DFS_open', 'DFS_closed', 'DFS_depth',
+    'A*_open', 'A*_closed', 'A*_depth'
+  ].join('\t')
+)
+
+for (let i = 0; i < TRIALS; i++) {
   let puzzle = new Puzzle(size).puzzle
   let hash = Puzzle.hash(puzzle)
 
   let pq = new PriorityQueue((a, b) => b.score - a.score)
-  // let pq = new PriorityQueue((a, b) => a.score - b.score)
 
-  new Tree(hash, size, methods.BFS, 'BFS').search(goal, [], Node)
-  new Tree(hash, size, methods.DFS, 'DFS').search(goal, [], Node)
-  new Tree(hash, size, methods.Astar, 'A*').search(goal, pq, A_Node)
+  let a = new Tree(hash, size, methods.BFS, 'BFS').search(goal, [], Node)
+  let b = new Tree(hash, size, methods.DFS, 'DFS').search(goal, [], Node)
+  let c = new Tree(hash, size, methods.Astar, 'A*').search(goal, pq, A_Node)
+
+  let results = [i, ...a, ...b, ...c]
+  console.log(results.join('\t'))
 }

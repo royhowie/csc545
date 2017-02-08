@@ -127,13 +127,6 @@ class Puzzle {
     // Can be reduced to something a little more cryptic:
     //    `return (N + (tiles + 1) * e) % 2 === 0`
     // But that probably isn't desirable as it requires an extra multiplication.
-
-    // A 15-puzzle puzzle is valid iff (N+e) is even. The opposite holds for an
-    // 8-puzzle, i.e., it is solvable (with the blank tile in the center) iff
-    // the sum is odd. To make this work for both cases, note that
-    // 16 % 2 = 0 and 9 % 2 = 1, so consider (N+e+tiles) mod 2, which must be
-    // zero for either puzzle to be solvable.
-    // return (N + e + tiles) % 2 === 0
   }
 
   static shuffle (arr) {

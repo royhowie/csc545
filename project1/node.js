@@ -6,4 +6,13 @@ class Node {
   }
 }
 
-module.exports = { Node }
+class A_Node extends Node {
+  constructor (hash, parent, depth, goal) {
+    super(hash, parent)
+    this.g = depth
+    this.h = Puzzle.heuristic(hash, goal, 3)
+    this.score = this.g + this.h
+  }
+}
+
+module.exports = { Node, A_Node }

@@ -47,7 +47,7 @@ class Tree {
       // New node has been visited, so record that.
       this.closed += 1
 
-      // Find all possible, unobserved moves...
+      // Find all possible unobserved moves.
       Puzzle.valid_moves(next.hash, this.len).forEach(move => {
         // If a move has been seen before, ignore it
         if (!seen.has(move)) {
@@ -74,7 +74,10 @@ class Tree {
       i += 1
     }
 
-    console.log(this.name, this.len, success, this.open, this.closed, i)
+    if (success)
+      return [this.open, this.closed, i]
+    return [ false ]
+    // console.log(this.name, this.len, success, this.open, this.closed, i)
   }
 }
 
