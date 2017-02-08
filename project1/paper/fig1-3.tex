@@ -1,0 +1,56 @@
+\begin{figure}[h]
+  \centering
+  \begin{minipage}[h][5cm][s]{.25\textwidth}
+    \centering
+    \vfill
+		\begin{tikzpicture}
+		\draw[step=1cm,black,thick] (-2,-2) grid (2,2);
+		\matrix[matrix of nodes,
+			nodes={inner sep=0pt, text width=1cm, align=center, minimum height=1cm}
+      ]{
+    		1 & 2 & 3 & 4 \\
+    		5 & 6 & 7 & 8 \\
+    		9 & 10 & 11 & 12\\
+    		13 & & 14 & 15 \\
+      };
+		\end{tikzpicture}
+    \vfill
+    \caption{Starting State}\label{fig:start1}
+    \vspace{\baselineskip}
+  \end{minipage}\qquad
+  \begin{minipage}[h][5cm][s]{.25\textwidth}
+    \centering
+    \vfill
+		\begin{tikzpicture}
+		\draw[step=1cm,black,thick] (-2,-2) grid (2,2);
+		\matrix[matrix of nodes,
+			nodes={inner sep=0pt, text width=1cm, align=center, minimum height=1cm }
+      ]{
+    		1 & 2 & 3 & 4 \\
+    		5 & 6 & 7 & 8 \\
+    		9 & 10 & 11 & 12\\
+    		13 & 14 & 15 &\\
+    	};
+		\end{tikzpicture}
+    \vfill
+    \caption{Goal State}\label{fig:goal15}
+  \end{minipage}\qquad
+  \begin{minipage}[h][5cm][s]{.25\textwidth}
+    \centering
+    \vfill
+		\begin{tikzpicture}
+		\draw[step=1cm,black,thick] (-2,-2) grid (2,2);
+		\matrix[matrix of nodes,
+			nodes={inner sep=0pt, text width=1cm, align=center, minimum height=1cm }
+      ]{
+    		1 & 2 & 3 & 4 \\
+    		5 & 6 & 7 & 8 \\
+    		9 & 10 & 11 & 12\\
+    		13 & 15 & 14 &\\
+    	};
+		\end{tikzpicture}
+    \vfill
+    \caption{Unsolvable State}\label{fig:bad15}
+  \end{minipage}
+  \vfill
+\end{figure}
