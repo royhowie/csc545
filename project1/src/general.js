@@ -77,7 +77,6 @@ class Tree {
     if (success)
       return [this.open, this.closed, i]
     return [ false ]
-    // console.log(this.name, this.len, success, this.open, this.closed, i)
   }
 }
 

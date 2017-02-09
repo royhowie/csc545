@@ -9,17 +9,7 @@ class Puzzle {
     return puzzle.map(char => char.toString(16)).join('')
   }
 
-  // Counting the number of out of places tiles is an admissable heuristic.
-  // static heuristic (hash, goal) {
-  //   let score = 0
-  //   for (let i = 0; i < hash.length; i++) {
-  //     if (hash[i] !== goal[i])
-  //       score += 1
-  //   }
-  //   return score
-  // }
-  //
-  // The Taxicab Metric, however, is an even better heuristic.
+  // The Taxicab Metric is an admissable heuristic.
   static heuristic (hash, goal, len) {
       let map_to_xy = (index) => {
         let row = index / len | 0
@@ -124,9 +114,6 @@ class Puzzle {
       return N % 2 === 0
     else
       return (N + e) % 2 === 0
-    // Can be reduced to something a little more cryptic:
-    //    `return (N + (tiles + 1) * e) % 2 === 0`
-    // But that probably isn't desirable as it requires an extra multiplication.
   }
 
   static shuffle (arr) {
