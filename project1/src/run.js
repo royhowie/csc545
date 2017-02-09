@@ -1,4 +1,4 @@
-let Tree = require('./general.js').Tree
+let Tree = require('./tree.js').Tree
 let Puzzle = require('./puzzle.js').Puzzle
 let nodes = require('./node.js')
 let PriorityQueue = require('priorityqueuejs')
