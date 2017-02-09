@@ -1,10 +1,6 @@
 \begin{figure}[h]
   \centering
-  \caption{Average Size of Open \& Closed Lists, Solution Path}
-  \label{fig:graphs}
-  % \begin{minipage}[h][13cm][s]{1\textwidth}
-    \centering
-    \vfill
+  \caption{Average Size of Open \& Closed Lists, Solution Path}\label{fig:graphs}
     % AVERAGE SIZE OF OPEN LISTS
     \begin{tikzpicture}
       \begin{axis}[
@@ -24,15 +20,12 @@
         };
       \end{axis}
     \end{tikzpicture}
-  % \end{minipage}
-  % \begin{minipage}[h][13cm][s]{1\textwidth}
+
     % AVERAGE SIZE OF CLOSED LISTS
     \begin{tikzpicture}
       \begin{axis}[
         xbar,
         xmin=50000,xmax=100000,xtick={50000,60000,70000,80000,90000,99999},
-        % x coord trafo/.code={\pgfmathparse{\pgfmathresult/1000}},
-        % xticklabel = {\pgfmathprintnumber{\tick}\,K},
         width=13cm, height=3.5cm, enlarge y limits=0.5,
         scaled x ticks = false,
         title={Average Size of Closed List},
@@ -47,16 +40,15 @@
         };
       \end{axis}
     \end{tikzpicture}
-  % \end{minipage}
-  % \begin{minipage}[h][13cm][s]{1\textwidth}
+
     % AVERAGE DEPTH
     \begin{tikzpicture}
       \begin{axis}[
-        xbar, xmin=0,%xmax=50000,
+        xbar, xmin=0,xmax=70000,
         width=13cm, height=3.5cm, enlarge y limits=0.5,
         scaled x ticks = false,
         % xmode=log, log basis x={10},
-        % xtick={0,10000,20000,30000,40000,50000},
+        xtick={0,10000,20000,30000,40000,50000,60000,70000},
         title={Average Depth of Solution},
         symbolic y coords={BFS,DFS,A*},
         ytick=data,
@@ -69,15 +61,4 @@
         };
       \end{axis}
     \end{tikzpicture}
-  % \end{minipage}
 \end{figure}
-
-% \begin{bchart}[step=2,max=10]
-%     \bcbar{3.4}
-%         \smallskip
-%     \bcbar{5.6}
-%         \medskip
-%     \bcbar{7.2}
-%         \bigskip
-%     \bcbar{9.9}
-% \end{bchart}

@@ -5,7 +5,7 @@
 \usepackage{amsmath}
 \usepackage{parskip}
 \usepackage{newclude}
-% \usepackage{enumitem}
+
 \usepackage{graphicx}
 \usepackage{caption}
 
@@ -44,13 +44,13 @@
   \subsection*{How it works}
     The concept is simple. Given a starting state---such as the one below---move
     tiles horizontally or vertically into the blank space until the goal state
-    is reached. For example, in figure \ref{fig:start1}, the player would first
+    is reached. For example, in Figure \ref{fig:start1}, the player would first
     move the \textbf{14} tile to the left. Next, the player would move the
     \textbf{15} tile to the left. This last action would complete the puzzle.
 
-    But how does a player know whether a puzzle is solvable? Indeed, figure
+    But how does a player know whether a puzzle is solvable? Indeed, Figure
     \ref{fig:bad15} presents a puzzle state which is unsolvable, i.e., one which
-    can never be permuted into the ``goal state'' represented by figure
+    can never be permuted into the ``goal state'' represented by Figure
     \ref{fig:goal15}.
 
   \include*{fig1-3}
@@ -59,51 +59,47 @@
     As there are $16!=20,922,789,888,000$ different puzzle board arrangements,
     listing which starting arrangements are good and which are bad is
     clearly unfeasible. Indeed, half of all possible arrangements---about
-    10 trillion---cannot be permuted into the goal state represented in figure
+    10 trillion---cannot be permuted into the goal state represented in Figure
     \ref{fig:goal15}. For convenience, we shall henceforth take ``solvable'' to
-    mean ``can be permuted into the (standard) goal state represented in figure
-    \ref{fig:goal15}''.
+    mean ``can be permuted into the (standard) goal state represented in Figure
+    \ref{fig:goal15}.''
 
-    A puzzle state is unsolvable if it of \textbf{odd} permutation, as proven by
-    W.W. Johnson in 1879. Conversely, a puzzle state is solvable if it is of
-    \textbf{even} permutation, as proven by W.E. Story in 1879.
+    A puzzle state is solvable if it is of \textit{even} permutation, as proven
+    by W.E. Story in 1879. Conversely, a puzzle state is unsolvable if it of
+    \textit{odd} permutation, as proven by W.W. Johnson in 1879.
 
-    To determine the permutation of a puzzle, consider the sum of its tile
-    ``inversions.'' For example, let $P$ be a puzzle. Consider a tile $T_i\in P$
-    containing the number $i$. Reading from left to right and from top to
-    bottom, let $n_i$ be the number of tiles with numbers less than $i$ which
-    occur after $T_i$. The blank tile is ignored. Let $N$ be the sum of
-    inversions:
+  \subsection*{Determining a puzzle's permutation}
+    Let $P$ be a puzzle and let $T_i\in P$ be the tile containing the number
+    $i$. Reading from left to the right and from top to bottom, let $n_i$ be the
+    amount of tiles with numbers less than $i$ which occur after $T_i$. Ignore
+    the blank tile. Let $N$ be the sum of tile inversions:
 
-    $$
-      N=\sum_{i=2}^{15} n_i
-    $$
+    $$ N =\sum_{i=2}^{15} n_i $$
 
-    Note that the sum begins at $i=2$, as no tiles contain numbers of value
-    less than $1$.
+    Note that the sum begins at $i=2$, as $n_1\equiv 0$, for
+    no tiles contain numbers of value less than $1$.
 
-    Next, let $e$ be the row number of the blank tile. In $P$, the blank tile
-    is in the bottom-right corner, or the 4th row, so $e=4$. Hence,
-    $\text{Permutation}(P)=N+e\pmod{2}$. Thus, if $N+e$ is even, the puzzle is
-    deemed solvable; otherwise, the puzzle is unsolvable.
+    Let $e\in\{1\dots n\}$ be the row number of the blank tile.
+    Thus, $\text{Permutation}(P)=N+e\pmod{2}$ and the puzzle is solvable if and
+    only if $N+e$ is even.
+
+  \subsection*{An example}
+    Consider the puzzle state represented in Figure \ref{fig:example-state}.
+    We then have that $n_6=3$, as three tiles of value less than six occur after
+    $T_6$: $T_2$, $T_3$, and $T_4$. See Table \ref{table1:n_i} for an
+    enumeration of all $T_i$.
 
     \include*{fig4}
-
-    For example, consider the puzzle state represented in figure
-    \ref{fig:example-state}. We then have that $n_6=3$, as three tiles of value
-    less than six occur after $T_6$: $T_2$, $T_3$, and $T_4$. Here are the $n_i$
-    for all $T_i$ in figure \ref{fig:example-state}.
-
     \include*{table1}
 
-    Thus, $\text{Permutation}(P)= N + e= 50$, which is even, so the puzzle
-    represented in figure \ref{fig:example-state} is solvable.
+    Hence, $\text{Permutation}(P)= N + e= 50$, which is even, so the puzzle
+    represented in Figure \ref{fig:example-state} is solvable.
 
   \subsection*{Generalizing puzzle solvability to other dimensions}
     As mentioned previously, other similar forms of the 15-puzzle exist, such as
     the smaller 8-puzzle. In general, if a puzzle is of dimension $k\times k$,
-    determining its solvability is not much complicated than the process
-    enumerated above for the 15-puzzle of size $4\times 4$.
+    determining its solvability is not much more complicated than the process
+    detailed above for the 15-puzzle of size $4\times 4$.
 
     Let $N$ be the sum of tile inversions $n_i$, as before, and let $e$ be the
     row number of the blank tile. Consider a puzzle $P$ of size $k\times k$.
@@ -117,7 +113,7 @@
   \subsection*{Goal}
     Given a \textit{valid} puzzle starting state, find a path of individual tile
     movements which leads to the goal state. A \textit{valid} puzzle is said to
-    be one which has an even permutation and can, therefore, be permuted into
+    be one which has an even permutation and can therefore be permuted into
     the standard goal state.
 
   \subsection*{Constraints}
@@ -129,12 +125,12 @@
   \subsection*{Approach}
     We will create a search tree out of the puzzle. The search operator will
     be all previously unseen moves available to a given state via sliding a
-    single tile. The root node will be a random starting state.
+    single tile. The root node will be a random valid starting state.
 
     The puzzle states will be (conveniently) stored in memory as hashes; this
     will allow for easy lookup in a set to determine whether a state has already
     been visited and should therefore be passed over by the search operator.
-    For example, the puzzle state from figure \ref{fig:example-state} would
+    For example, the puzzle state from Figure \ref{fig:example-state} would
     be represented by the hash \texttt{187d56af2ec0394b}. This is obtained
     by reading from left to right and from top to bottom, considering the
     numbers in base-16; the blank tile is read as zero.
@@ -163,19 +159,18 @@
   solution to the 8-puzzle. A* and BFS were much closer in their performance,
   with BFS providing a much more practical solution. A* used the Taxicab Metric
   as its heuristic; this heuristic is known to be admissable, but perhaps there
-  are better, more sophisticated heuristics available. Thus, if the algorithms
+  are better, more sophisticated heuristics available. If the algorithms
   were ranked based on the abstract concept of ``usability,'' they would be
   placed in the following order: BFS, A*, DFS.
 
   The search tree for the sliding tiles puzzles has a low branching factor of
-  zero to three---the fourth option is always corresponds to the last
-  state---but
-  an extremely high depth. This was most likely the reason for the poor showing
-  by DFS. As DFS traverses the tree, plunging downwards, it skips very few
-  states. In fact,
-  it is very likely to hit the children of previously unexplored children, as
-  the graph of puzzle states is highly connected, i.e., a puzzle state can be
-  easily reached from most other states with very few intermediary steps.
+  zero to three---the fourth branch always corresponds to the previous
+  state---but an extremely high depth. This was most likely the reason for the
+  poor showing by DFS. As DFS traverses the tree, plunging downwards, it skips
+  very few states. In fact, it is very likely to hit the children of previously
+  unexplored children, as the graph of puzzle states is highly connected, i.e.,
+  a puzzle state can be easily reached from most other states with very few
+  intermediary steps.
 
   This resulted in DFS's ambling about, exploring long, winding ``caverns'' or
   ``tunnels'' until it either reached a cul-de-sac or the solution. Upon
@@ -191,24 +186,24 @@
   Ignoring the practicality of the solutions presented by the three search
   algorithms, the results were much more even-handed, but still lopsided.
   A* and DFS both had an average open list size of around 41k, whereas BFS had
-  an average open list size of 25k. This was a surprisingly result, as BFS
+  an average open list size of 25k. This was a surprising result, as BFS
   typically requires more memory to store the search tree, i.e., has a larger
   open tree size.
 
-  As previously seen states were not revisited by the
-  algorithms, BFS most likely had a smaller search tree because it more quickly
-  eliminated dead-ends and bad choices, preventing those paths from being
-  searched. This was also the reason the Iterativing Deepening Search algorithm
-  was not included, as it was practically the same as BFS due to the low
-  branching factor and the small depth of potential solution tree (most
-  8-puzzles can be solved in under 30 moves).
+  As previously seen states were not revisited by the algorithms, BFS most
+  likely had a smaller search tree because it more quickly eliminated dead-ends
+  and bad choices, preventing those paths from being searched. This was also the
+  reason the Iterativing Deepening Search algorithm was not included, as it was
+  practically the same as BFS due to the low branching factor and the small
+  depth of potential solution tree (an 8-puzzle can always be solved in 31 moves
+  or fewer).
 
   On the other hand, A* and DFS visited about 70\% as many states as BFS did,
   with 65k and 92k states visited on average, respectively. Indeed, BFS took,
   on average, about 38\% longer to complete its search than A* and DFS did.
 
   Despite being somewhat slower, BFS was the clear winner, as it was able to
-  present a human-understandable solution using less memory.
+  present a user-friendly solution using less memory.
 
 \vfill
 \section*{Bibliography}
