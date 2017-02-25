@@ -2,5 +2,8 @@
   "name": "project1",
   "version": "0.0.0",
   "description": "AI project 1",
-  "author": "Roy Howie"
+  "author": "Roy Howie",
+  "dependencies": {
+    "priorityqueuejs": "^1.0.0"
+  }
 }
