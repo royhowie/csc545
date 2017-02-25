@@ -1,0 +1,10 @@
+{
+  "name": "project2",
+  "version": "0.0.0",
+  "description": "AI project 2",
+  "author": "Roy Howie",
+  "dependencies": {
+    "node-gd": "^1.4.0",
+    "priorityqueuejs": "^1.0.0"
+  }
+}
