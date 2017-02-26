@@ -1,17 +1,14 @@
 let Individual = require('./individual.js').Individual
 
 class GeneticAlgorithm {
-  constructor (max_pop_size, chromo_len=50, goal, width, height) {
+  constructor (max_pop_size, chromo_len=20) {
     this.max_pop_size = max_pop_size
     this.chromo_len = chromo_len
-    this.goal = goal
-    this.width = width
-    this.height = height
 
     // Create an initial, random population of `max_pop_size` individuals.
     this.population = []
     for (let i = 0; i < this.max_pop_size; i++) {
-      this.population[i] = new Individual(this.chromo_len, width, height)
+      this.population[i] = new Individual(this.chromo_len)
     }
 
     // Record the number of times the `GeneticAlgorithm.fitness` is called; this
@@ -29,17 +26,24 @@ class GeneticAlgorithm {
   play (should_continue) {
     console.log('gen,avg_fit,max_fit')
     let generation = 1
+
+    this.max_fitness = -Infinity
+    this.max_index = -1
+    this.average = 0
+
     do {
       let cumulative_sum = [0]
       let sum = 0.0
-      let max_fitness = -Infinity
 
       for (let i = 0; i < this.population.length; i++) {
         // Record the fitness of invidual #i
         let indiv_fit = this.fitness(this.population[i])
 
         // Keep track of the max fitness of this population
-        max_fitness = Math.max(max_fitness, indiv_fit)
+        if (this.max_fitness < indiv_fit) {
+          this.max_fitness = indiv_fit
+          this.max_index = i
+        }
 
         // Keep a running total of the sum of the fitness values. This will be
         // used to randomly select individuals
@@ -49,7 +53,7 @@ class GeneticAlgorithm {
       }
 
       // Average fitness value of population [for data purposes].
-      let average = sum / (cumulative_sum.length - 1)
+      this.average = sum / (cumulative_sum.length - 1)
 
       let next_pop = []
       for (let i = 0; i < this.population.length; i++) {
@@ -72,22 +76,25 @@ class GeneticAlgorithm {
         next_pop[i + 1] = son
       }
 
-      // Possible mutate individuals
+      // Possibly mutate individuals
       for (let i = 0; i < next_pop.length; i++) {
         next_pop[i].attemptMutation()
       }
 
       // Destroy the old population (for memory purposes) and store the next
       // generation.
-      this.population.forEach(individual => {
-        individual.paint()
-        individual.destroy()
-      })
+      // this.population.forEach(individual => { individual.destroy() })
       this.population = next_pop
 
-      console.log(`${generation},${average},${max_fitness}`)
+      this.average
+
+      console.log(`${generation},${this.average},${this.max_fitness}`)
       generation += 1
     } while (should_continue(this))
+
+    let winner = this.population[this.max_index]
+    console.log(`winner: (${winner.get_value()},${this.max_fitness})`)
+    console.log(`calls to f(x): ${this.fitness_calls}`)
   }
 
   // Search for the last element which is less than `goal` and return its index.
