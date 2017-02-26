@@ -1,9 +1,11 @@
 let Individual = require('./individual.js').Individual
 
+const default_MUT_CHANCE = { individual: 100, gene: 25 }
 class GeneticAlgorithm {
-  constructor (max_pop_size, chromo_len=20) {
+  constructor (max_pop_size, chromo_len=20, MUT_CHANCE=default_MUT_CHANCE) {
     this.max_pop_size = max_pop_size
     this.chromo_len = chromo_len
+    this.MUT_CHANCE = MUT_CHANCE
 
     // Create an initial, random population of `max_pop_size` individuals.
     this.population = []
@@ -25,8 +27,8 @@ class GeneticAlgorithm {
 
   play (should_continue) {
     console.log('gen,avg_fit,max_fit')
-    let generation = 1
 
+    this.generation = 0
     this.max_fitness = -Infinity
     this.max_index = -1
     this.average = 0
@@ -78,18 +80,13 @@ class GeneticAlgorithm {
 
       // Possibly mutate individuals
       for (let i = 0; i < next_pop.length; i++) {
-        next_pop[i].attemptMutation()
+        next_pop[i].attemptMutation(this.MUT_CHANCE)
       }
 
-      // Destroy the old population (for memory purposes) and store the next
-      // generation.
-      // this.population.forEach(individual => { individual.destroy() })
       this.population = next_pop
+      this.generation += 1
 
-      this.average
-
-      console.log(`${generation},${this.average},${this.max_fitness}`)
-      generation += 1
+      console.log(`${this.generation},${this.average},${this.max_fitness}`)
     } while (should_continue(this))
 
     let winner = this.population[this.max_index]

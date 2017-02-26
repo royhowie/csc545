@@ -1,5 +1,4 @@
 const MAX = 1 << 20
-const MUT_CHANCE = { individual: 100, gene: 25 }
 let rand_in_range = (min, max) => min + (Math.random() * (max - min)) | 0
 let f = (x) => {
   return 12 +
@@ -26,7 +25,7 @@ class Individual {
     }
   }
 
-  attemptMutation () {
+  attemptMutation (MUT_CHANCE) {
     // 1 in 100 chance to mutate
     if (rand_in_range(0, MUT_CHANCE.individual) !== 1) return this;
 
