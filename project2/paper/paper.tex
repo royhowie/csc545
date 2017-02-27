@@ -4,18 +4,20 @@
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{bchart}
+\usepackage{braket}
+\usepackage{bytefield}
 \usepackage{caption}
 \usepackage{graphicx}
 \usepackage{newclude}
 \usepackage{parskip}
 \usepackage{pgfplots}
+\usepackage[group-separator={,}]{siunitx}
 \usepackage{subfig}
 \usepackage{titling}
 
-% \usepackage{tikz}
-% \usetikzlibrary{matrix}
-% \usetikzlibrary{positioning}
-%\usetikzlibrary{arrows}
+
+\newcommand{\colorbitbox}[3]{%
+  \rlap{\bitbox{#2}{\color{#1}\rule{\width}{\height}}}\bitbox{#2}{#3}}
 
 \begin{document}
 
@@ -57,8 +59,8 @@
   The application of these three search operators to a population is the act of
   moving from one generation to the next.
 
-  Each of these three operators can be customized for whichever domain is under
-  consideration.
+  Note that each of these three operators can be customized for whichever domain
+  is under consideration.
 
   For example, the \textbf{survival} operator could be changed to always include
   the top quintile in its selection. The \textbf{recombination} operator could
@@ -71,8 +73,91 @@
   given number of generations. This termination criterion must take into account
   the possibility of \textbf{premature degeneration}. This is when a population
   devolves into a small set of individuals which are no longer capable of
-  genetic diversity through mating, i.e. recombination. Alternatively, the
-  mutation rate may be momentarily increased to temporarily overcome this
-  affliction.
+  genetic diversity through mating. To overcome this affliction, the mutation
+  rate may be momentarily increased to great effect.
+  % Alternatively, the mutation rate may be momentarily increased to temporarily
+  % overcome this affliction.
+
+\section{Implementation}
+  \subsection{Fitness Function}
+    The fitness function we sought to maximize was
+    $$
+      f(x)= 12 +
+      10\cos\left\{
+        \ln\left[0.1 + \left(
+          \frac{x-{10}^5}{1000}
+        \right)^2
+        \right]
+      \right\}
+      -2\sin\left(
+        \frac{x-{10}^5}{1000}
+      \right)
+    $$
+    for all integer $x$. Note $\inf{f}=0$ and $\sup{f}=24$.
+    % \include*{function}
+
+  \subsection{Individuals}\label{individual-ranges}
+    Individuals are represented via a binary string of 20 bits. Therefore, the
+    range of individuals was all integers between $0$ and $2^{20}-1$.
+
+  \subsection{Search Operators}
+    \subsubsection{Survival}
+      Individuals were selected for the next generation using a weighted
+      probability distribution.
+
+      For example, denote the current generation as $P$ and let it consist
+      of a list of numbers in the range specified in \ref{individual-ranges}.
+      Let $F$ be the corresponding array of fitness values of the members of
+      $P$ and let $C$ be the cumulative sum of $F$.
+      \include*{table1}
+
+      If $k$ individuals are desired for the next generation, then pick $k$
+      random numbers $\set{r_1,r_2,\cdots,r_k}$ between $0$ and $\max(C)=56.31$.
+      Next, for each $i$, find the least $j$ such that $r_i < C[j+1]$ and
+      include the individual at index $j$ of $P$ in the next generation.
+
+      Note that the same individual may be selected multiple times to be
+      included in the next generation, unlike in real life. Indeed, this is the
+      intended behavior: that individuals with higher fitness values shall have
+      a greater chance of surviving and will thus appear in larger number in the
+      generations to come.
+
+    \subsubsection{Recombination}
+      The 2-point crossover method was used for mating. As individuals were
+      selected for survival, they were put into mother-father pairs. Each
+      mother and father pair was cloned into a daughter and a son, respectively.
+      Then, two random indices $a<b$ were chosen and the binary digits between
+      these indices were then ``swapped'' between the daughter and son's
+      chromosomes.
+
+      For example, suppose the mother could be represented with the
+      sequence of binary digits $m_1\cdots m_k$ and the father by $f_1\cdots
+      f_k$. Choose $0<a<b<k$. Then daughter would be $m_1\cdots m_{a-1}f_a\cdots
+      f_bm_{b+1}\cdots m_k$ and the son would be $f_1\cdots f_{a-1}m_a\cdots m_b
+      f_{b+1}\cdots f_k$. This is best seen as illustrated in Figure
+      \ref{recomb}.
+      \include*{recombination}
+
+    \subsubsection{Mutation}
+      After mother-father pairs were recombined into daughter-son pairs, each
+      child was given a 1-in-100 chance to mutate. If selected for mutation,
+      each digit in the child's binary representation was given a 1-in-25
+      chance of flipping.
+
+  \subsection{Termination Criterion}
+    The algorithm was run until at least one of the following became true:
+    \begin{itemize}
+      \renewcommand\labelitemi{$\star$}
+      \item{
+        An individual had attained a fitness value greater than \num{23.97}.
+      }
+      \item{
+        The algorithm had searched for \num{100000} generations.
+      }
+      \item{
+        The max fitness level of the past \num{1000} generations had remained
+        constant.
+      }
+    \end{itemize}
 
 \end{document}

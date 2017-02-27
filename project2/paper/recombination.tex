@@ -1,0 +1,62 @@
+\begin{figure}[h!]
+  \captionsetup[subfloat]{labelformat=empty,position=bottom}
+  \begin{center}
+    \caption{Recombination Illustration for $a=1,b=3$}
+    \label{recomb}
+
+    % COLOR DEFINITIONS
+    \definecolor{lightcyan}{rgb}{0.84,1,1}
+    \definecolor{lightgreen}{rgb}{0.64,1,0.71}
+    \definecolor{lightred}{rgb}{1,0.7,0.71}
+
+    \begin{tabular}{cc}
+      % MOTHER
+      \subfloat[mother]{
+        \begin{bytefield}{6}
+          \colorbitbox{white}{2}{{1}}
+          \colorbitbox{lightcyan}{2}{{0}}
+          \colorbitbox{lightcyan}{2}{{1}}
+          \colorbitbox{lightcyan}{2}{{0}}
+          \colorbitbox{white}{2}{{1}}
+          \colorbitbox{white}{2}{{0}}
+        \end{bytefield}
+      } &
+
+      % FATHER
+      \subfloat[father]{
+        \begin{bytefield}{6}
+          \colorbitbox{white}{2}{{1}}
+          \colorbitbox{lightred}{2}{{1}}
+          \colorbitbox{lightred}{2}{{0}}
+          \colorbitbox{lightred}{2}{{0}}
+          \colorbitbox{white}{2}{{1}}
+          \colorbitbox{white}{2}{{1}}
+        \end{bytefield}
+      } \\
+
+      % DAUGHTER
+      \subfloat[daughter]{
+        \begin{bytefield}{6}
+          \colorbitbox{white}{2}{{1}}
+          \colorbitbox{lightred}{2}{{1}}
+          \colorbitbox{lightred}{2}{{0}}
+          \colorbitbox{lightred}{2}{{0}}
+          \colorbitbox{white}{2}{{1}}
+          \colorbitbox{white}{2}{{0}}
+        \end{bytefield}
+      } &
+
+      % SON
+      \subfloat[son]{
+        \begin{bytefield}{6}
+          \colorbitbox{white}{2}{{1}}
+          \colorbitbox{lightcyan}{2}{{0}}
+          \colorbitbox{lightcyan}{2}{{1}}
+          \colorbitbox{lightcyan}{2}{{0}}
+          \colorbitbox{white}{2}{{1}}
+          \colorbitbox{white}{2}{{1}}
+        \end{bytefield}
+      }
+    \end{tabular}
+  \end{center}
+\end{figure}
