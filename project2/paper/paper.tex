@@ -72,11 +72,9 @@
   attained a maximal level of fitness within a population or having run for a
   given number of generations. This termination criterion must take into account
   the possibility of \textbf{premature degeneration}. This is when a population
-  devolves into a small set of individuals which are no longer capable of
-  genetic diversity through mating. To overcome this affliction, the mutation
+  devolves into a small set of similar individuals and is thus no longer capable
+  of genetic diversity through mating. To overcome this affliction, the mutation
   rate may be momentarily increased to great effect.
-  % Alternatively, the mutation rate may be momentarily increased to temporarily
-  % overcome this affliction.
 
 \section{Implementation}
   \subsection{Fitness Function}
@@ -94,7 +92,7 @@
       \right)
     $$
     for all integer $x$. Note $\inf{f}=0$ and $\sup{f}=24$.
-    % \include*{function}
+    \include*{function}
 
   \subsection{Individuals}\label{individual-ranges}
     Individuals are represented via a binary string of 20 bits. Therefore, the
@@ -142,7 +140,7 @@
       After mother-father pairs were recombined into daughter-son pairs, each
       child was given a 1-in-100 chance to mutate. If selected for mutation,
       each digit in the child's binary representation was given a 1-in-25
-      chance of flipping.
+      chance of flipping, i.e., \texttt{BITWISE NOT}.
 
   \subsection{Termination Criterion}
     The algorithm was run until at least one of the following became true:
@@ -159,5 +157,18 @@
         constant.
       }
     \end{itemize}
+
+\section{Results}
+  \include*{gen-v-pop}
+  \include*{individuals-v-pop}
+  \include*{indiv-mut-rate-avg}
+  \include*{indiv-mut-rate-max}
+
+\vfill
+\pagebreak
+\pagebreak
+\pagebreak
+\section{Bonus: Genetic Programming \& Hill-Climbing Search}
+  \include*{bonus-fig}
 
 \end{document}

@@ -1,0 +1,58 @@
+\begin{figure}[h!]
+  \begin{center}
+    \caption{Mean Average Fitness Over 500 Trials for Various Mutation Rates}
+    \label{avg-max-fitness}
+    % Average number of generations
+    \begin{tikzpicture}
+      \begin{axis}[
+          xlabel=Generation,
+          ylabel=Fitness,
+          ymin=15,
+          ymax=24,
+          xmin=0,
+          xmax=100,
+          width=\textwidth,
+          height=6cm,
+          grid=major,
+          legend pos=south east,
+          legend columns=2,
+        ]
+        % 1 in 10 chance
+        \addplot[very thick, color=red]
+          table [x=generation,y=avg_fitness,col sep=comma]
+          {../data/indiv-mut-rate/10.csv};
+        \addlegendentry{1-in-10}
+
+        % 1 in 50 chance
+        \addplot[very thick, color=blue]
+          table [x=generation,y=avg_fitness,col sep=comma]
+          {../data/indiv-mut-rate/50.csv};
+        \addlegendentry{1-in-50}
+
+        % 1 in 100 chance
+        \addplot[very thick, color=green]
+          table [x=generation,y=avg_fitness,col sep=comma]
+          {../data/indiv-mut-rate/100.csv};
+        \addlegendentry{1-in-100}
+
+        % 1 in 250 chance
+        \addplot[very thick, color=black]
+          table [x=generation,y=avg_fitness,col sep=comma]
+          {../data/indiv-mut-rate/250.csv};
+        \addlegendentry{1-in-250}
+
+        % 1 in 500 chance
+        \addplot[very thick, color=black]
+          table [x=generation,y=avg_fitness,col sep=comma]
+          {../data/indiv-mut-rate/500.csv};
+        \addlegendentry{1-in-500}
+
+        % 1 in 1000 chance
+        \addplot[very thick, color=orange]
+          table [x=generation,y=avg_fitness,col sep=comma]
+          {../data/indiv-mut-rate/1000.csv};
+        \addlegendentry{1-in-1000}
+      \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{figure}

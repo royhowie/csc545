@@ -1,14 +1,15 @@
 \begin{figure}[h!]
   \begin{center}
-    \caption{Average Number of Generations over 500 Trials}
-    \label{gen-vs-pop}
-    % Average number of generations
+    \caption{Average Number of Individuals Witnessed over 500 Trials}
+    \label{individuals-vs-pop}
+    % Calls to f(x) v. Population Size
     \begin{tikzpicture}
       \begin{axis}[
+          % title={Average Number of Individuals Witnessed over 500 Trials},
           xlabel=Population Size,
-          ylabel=Generations,
-          ymin=0,
-          ymax=1400,
+          ylabel=Individuals,
+          ymin=500,
+          ymax=16000,
           xmin=6,
           xmax=240,
           scaled y ticks=true,
@@ -25,7 +26,7 @@
           mark options={fill=white}
         ] table [
           x=pop_size,
-          y=generations,
+          y=calls_of_f(x),
           col sep=comma,
         ]{../data/pop_size_vs_generations2.txt};
       \end{axis}
