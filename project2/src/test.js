@@ -21,23 +21,58 @@ let keep_playing = () => {
   }
 }
 
-logger('pop_size,generations,calls_of_f(x),average_max_fitness')
+if (false) {
+  logger('pop_size,generations,calls_of_f(x),average_max_fitness')
 
-for (let i = 1; i < 41; i++) {
-  let population = 6 * i
-  let generations = 0.0
-  let calls = 0.0
-  let fitness = 0.0
+  for (let i = 1; i < 41; i++) {
+    let population = 6 * i
+    let generations = 0.0
+    let calls = 0.0
+    let fitness = 0.0
 
-  for (let j = 0; j < TRIALS; j++) {
-    let ga = new GA(population, 20, MUT_CHANCE)
-    ga.play(keep_playing())
+    for (let j = 0; j < TRIALS; j++) {
+      let ga = new GA(population, 20, MUT_CHANCE)
+      ga.play(keep_playing())
 
-    fitness += ga.max_fitness
-    generations += ga.generation
-    calls += ga.fitness_calls
+      fitness += ga.max_fitness
+      generations += ga.generation
+      calls += ga.fitness_calls
+    }
+
+    logger([ population, generations / TRIALS, calls / TRIALS,
+      fitness / TRIALS ].join(','))
   }
+} else {
+  const POP_SIZE = 70
+  let mut_chance = MUT_CHANCE
+  // let individual_options = [5, 10, 25, 50, 100, 200, 250, 500, 1000, 10000]
+  // [16, 32, 64, 128, 256, 512, 1024]
 
-  logger([ population, generations / TRIALS, calls / TRIALS,
-    fitness / TRIALS ].join(','))
+  let individual_options = [10, 50, 100, 250, 500, 1000]
+
+  for (let i = 0; i < individual_options.length; i++) {
+    mut_chance.individual = individual_options[i]
+    logger('MUT_RATE=' + individual_options[i])
+
+    const MAX_GEN = 100
+    let avg_fitness = Array(MAX_GEN).fill(0)
+    let max_fitness = Array(MAX_GEN).fill(0)
+
+    for (let j = 0; j < TRIALS; j++) {
+      let ga = new GA(POP_SIZE, 20, mut_chance)
+      let gens = 0
+      ga.play((instance) => {
+        avg_fitness[gens] += ga.average
+        max_fitness[gens] += ga.max_fitness
+        return ++gens < MAX_GEN
+      })
+    }
+
+    logger('generation,avg_fitness,max_fitness')
+    for (let j = 0; j < MAX_GEN; j++) {
+      logger(`${j},${avg_fitness[j]/TRIALS},${max_fitness[j]/TRIALS}`)
+    }
+
+    logger('\n')
+  }
 }
