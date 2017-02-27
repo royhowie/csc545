@@ -15,20 +15,15 @@
 \usepackage{subfig}
 \usepackage{titling}
 
-
 \newcommand{\colorbitbox}[3]{%
   \rlap{\bitbox{#2}{\color{#1}\rule{\width}{\height}}}\bitbox{#2}{#3}}
 
 \begin{document}
 
-\title{AI Project 2: Genetic Algorithm}
+\title{\vspace{-1cm}AI Project 2: Genetic Algorithm}
 \author{Roy Howie}
 \date{February 27, 2017}
 \maketitle
-
-% \begin{abstract}
-%   Summary.
-% \end{abstract}
 
 \section{The Genetic Algorithm}
   The Genetic Algorithm is a stochastic, heuristic-based algorithm which draws
@@ -142,7 +137,7 @@
       each digit in the child's binary representation was given a 1-in-25
       chance of flipping, i.e., \texttt{BITWISE NOT}.
 
-  \subsection{Termination Criterion}
+  \subsection{Termination Criterion}\label{termination-criterion}
     The algorithm was run until at least one of the following became true:
     \begin{itemize}
       \renewcommand\labelitemi{$\star$}
@@ -158,19 +153,71 @@
       }
     \end{itemize}
 
+\section{Objectives}
+  \begin{itemize}
+    \renewcommand\labelitemi{$\star$}
+    \item{
+      Understand how the average and max fitness of a population evolve over
+      time.
+    }
+    \item{
+      Determine how the mutation rate affects a population's fitness over time.
+    }
+    \item{
+      Determine the relationship between population size, number of calls to the
+      fitness function (total number of individuals), and the number of
+      generations needed to find a solution.
+    }
+  \end{itemize}
+
 \section{Results}
   \include*{gen-v-pop}
   \include*{individuals-v-pop}
+  \include*{gen-vs-individuals}
   \include*{indiv-mut-rate-avg}
+  \clearpage
   \include*{indiv-mut-rate-max}
 
-\clearpage
+
 \section{Discussion}
-  Discussion goes here.
+  \subsection{On the Best Approach}
+    As can be seen in Figures \ref{gen-vs-pop} through \ref{avg-max-fitness},
+    the ideal implementation of the Genetic Algorithm often consisted of a
+    larger initial population. Indeed, as can be observed in Figure
+    \ref{gen-vs-individuals}, the lower the number of generations needed to find
+    a solution, the fewer individuals observed. This is intuitive and reveals a
+    subtle but important notion: a large initial investment (large population)
+    resulted in a better payoff long-term (less computation).
 
+    Furthermore, a mutation rate of less than 1-in-100 was observed to be ideal.
 
-\clearpage
-\section{Bonus: Genetic Programming \& Hill-Climbing Search}
+  \subsection{On Premature Degeneration}
+    Premature degeneration did not occur very often. However, to prevent the
+    algorithm from looping indefinitely, as explained in Section
+    \ref{termination-criterion}, we only allowed the algorithm to run for less
+    than \num{100000} generations.
+
+    In addition, we wanted the max fitness of a
+    population to climb somewhat monotonically over time. Thus, if the max
+    fitness of a population did not increase for \num{1000} generations in a
+    row, the algorithm was terminated.
+
+    Even when premature degeneration did occur, the algorithm had often already
+    found a solution rather close to the one we deemed optimal, i.e., a max
+    fitness level of at least \num{23.97}.
+
+  \subsection{On Improvements}
+    The algorithm was implemented in JavaScript. While the \texttt{v8 JavaScript
+    Engine} developed under the Chromium Project and used by \texttt{node.js}
+    makes JavaScript rather fast, it is often still no match for \texttt{C++}.
+    Furthermore, maximizing a function is not necessarily computationally
+    expensive. Indeed, as will be seen in Section \ref{BONUS}, a \texttt{C++}
+    implemenation would have allowed us to natively hook into the \texttt{gd}
+    Graphics Library and more quickly process images.
+
+\section{Bonus: Genetic Programming \& Hill-Climbing Search}\label{BONUS}
+  As a bonus, we decided to mix hill-climbing search and genetic programming to
+  see if the computer could ``paint'' someone. Namely, the author's girlfriend.
   \include*{bonus-fig}
 
 \end{document}

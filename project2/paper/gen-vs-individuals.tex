@@ -1,0 +1,33 @@
+\begin{figure}[t!]
+  \begin{center}
+    \caption{Generations vs. Number of Individuals, over 500 Trials}
+    \label{gen-vs-individuals}
+    % Average number of generations
+    \begin{tikzpicture}
+      \begin{axis}[
+          xlabel={Average Number of Generations to Find Solution},
+          ylabel={Number of individuals},
+          ymin=0,
+          % ymax=20000,
+          xmin=0,
+          xmax=1400,
+          ytick={0, 5000, 10000, 15000},
+          yticklabels={0, 5000, 10000, 15000},
+          scaled y ticks=false,
+          width=\textwidth,
+          height=6cm,
+          grid=major,
+          legend pos=south east,
+          legend columns=2,
+        ]
+        \addplot[
+          blue!40!black,
+          very thick,
+          mark=*,
+          mark options={fill=white}
+        ] table [x=generations,y=calls_of_f(x),col sep=comma]
+          {../data/pop_size_vs_generations2.txt};
+      \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{figure}
