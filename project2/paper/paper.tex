@@ -1,0 +1,78 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{bchart}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{newclude}
+\usepackage{parskip}
+\usepackage{pgfplots}
+\usepackage{subfig}
+\usepackage{titling}
+
+% \usepackage{tikz}
+% \usetikzlibrary{matrix}
+% \usetikzlibrary{positioning}
+%\usetikzlibrary{arrows}
+
+\begin{document}
+
+\title{AI Project 2: Genetic Algorithm}
+\author{Roy Howie}
+\date{February 27, 2017}
+\maketitle
+
+% \begin{abstract}
+%   Summary.
+% \end{abstract}
+
+\section{The Genetic Algorithm}
+  The Genetic Algorithm is a stochastic, heuristic-based algorithm which draws
+  its inspiration from the Darwinian principle of natural selection. It aims to
+  generate high-quality but not necessarily maximal solutions to optimization
+  and search problems.
+
+  The algorithm requires an initial population and a fitness function $f$ which
+  it seeks to maximize. The initial population is usually a collection of
+  individuals which have each been given a random genetic makeup. The algorithm
+  is then able to efficiently search through extremely large domains via three
+  search operators:
+  \begin{itemize}
+    \renewcommand\labelitemi{}
+    \item{
+      \textbf{Survival.} This determines whether a given individual lives on to
+      the next generation.
+    }
+    \item{
+      \textbf{Recombination.} Individuals selected for survival are mated and
+      their genetic compositions mixed.
+    }
+    \item{
+      \textbf{Mutation.} A chromosome is occasionally incorrectly copied when
+      passed onto the next generation.
+    }
+  \end{itemize}
+  The application of these three search operators to a population is the act of
+  moving from one generation to the next.
+
+  Each of these three operators can be customized for whichever domain is under
+  consideration.
+
+  For example, the \textbf{survival} operator could be changed to always include
+  the top quintile in its selection. The \textbf{recombination} operator could
+  randomly select the offsprings' genes from each parent or it could ensure an
+  even split. Instead of remaining constant, the \textbf{mutation} rate can be
+  intensified or lessened over time. The possibilities are endless.
+
+  Last, the algorithm requires a termination criterion, such as having
+  attained a maximal level of fitness within a population or having run for a
+  given number of generations. This termination criterion must take into account
+  the possibility of \textbf{premature degeneration}. This is when a population
+  devolves into a small set of individuals which are no longer capable of
+  genetic diversity through mating, i.e. recombination. Alternatively, the
+  mutation rate may be momentarily increased to temporarily overcome this
+  affliction.
+
+\end{document}
