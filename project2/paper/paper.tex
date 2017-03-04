@@ -31,8 +31,8 @@
   generate high-quality but not necessarily maximal solutions to optimization
   and search problems.
 
-  The algorithm requires an initial population and a fitness function $f$ which
-  it seeks to maximize. The initial population is usually a collection of
+  The algorithm requires an initial population and a fitness function which it
+  seeks to maximize. The initial population is usually a collection of
   individuals which have each been given a random genetic makeup. The algorithm
   is then able to efficiently search through extremely large domains via three
   search operators:
@@ -125,16 +125,16 @@
 
       For example, suppose the mother could be represented with the
       sequence of binary digits $m_1\cdots m_k$ and the father by $f_1\cdots
-      f_k$. Choose $0<a<b<k$. Then daughter would be $m_1\cdots m_{a-1}f_a\cdots
-      f_bm_{b+1}\cdots m_k$ and the son would be $f_1\cdots f_{a-1}m_a\cdots m_b
-      f_{b+1}\cdots f_k$. This is best seen as illustrated in Figure
+      f_k$. Choose $0<a<b\leq k$. Then the daughter would be $m_1\cdots m_{a-1}
+      f_a\cdots f_bm_{b+1}\cdots m_k$ and the son would be $f_1\cdots f_{a-1}m_a
+      \cdots m_bf_{b+1}\cdots f_k$. This is best seen as illustrated in Figure
       \ref{recomb}.
       \include*{recombination}
 
     \subsubsection{Mutation}
-      After mother-father pairs were recombined into daughter-son pairs, each
-      child was given a 1-in-100 chance to mutate. If selected for mutation,
-      each digit in the child's binary representation was given a 1-in-25
+      After mother-father pairs are recombined into daughter-son pairs, each
+      child is given a 1-in-100 chance to mutate. If selected for mutation,
+      each digit in the child's binary representation is given a 1-in-25
       chance of flipping, i.e., \texttt{BITWISE NOT}.
 
   \subsection{Termination Criterion}\label{termination-criterion}
