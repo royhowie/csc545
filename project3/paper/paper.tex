@@ -1,0 +1,112 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+% \usepackage{bchart}
+% \usepackage{braket}
+% \usepackage{bytefield}
+% \usepackage{caption}
+% \usepackage{graphicx}
+\usepackage{newclude}
+\usepackage{parskip}
+% \usepackage{pgfplots}
+\usepackage[group-separator={,}]{siunitx}
+% \usepackage{subfig}
+\usepackage{titling}
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\renewcommand\labelitemi{$\star$}
+
+\begin{document}
+
+\title{\vspace{-1cm}AI Project 3: Simple Automated Reasoning System}
+\author{Roy Howie}
+\date{April 5, 2017}
+\maketitle
+
+\section{Task}
+  Create an automated reasoning system which resolves queries using either modus
+  ponens or the resolution principle.
+
+\section{Algorithm}
+  \begin{algorithm}
+    \begin{algorithmic}[1]
+    \Procedure{ResolveQuery}{q}
+      \State $L \gets q$ \Comment{$L$ is a list}
+      \While{$length(L)>0$}
+        \State $p\gets L[0]$
+        \If{$p=T\rightarrow F$}
+          \Return success
+        \EndIf
+        \State $p_1,\cdots,p_n \gets$ resolve $p$ with other queries in $L$ or
+          in the database
+        \State Append $p_i$ to $L$ for every $i$
+      \EndWhile
+      \State \Return failure
+        \Comment{$L$ is empty, so the query could not be proven}
+    \EndProcedure
+    \end{algorithmic}
+  \end{algorithm}
+
+\section{Implementation}
+  \subsection{Setup}
+    The automated reasoning system was written in \texttt{JavaScript}. The demo
+    was written using the \texttt{Meteor} framework on the \texttt{node.js}
+    runtime. The source code can be found at \url{http://github.com/royhowie/
+    csc545/} under the \texttt{project3/app} directory.
+
+  \subsection{Rules \& Facts}
+    The sample knowledge database consisted of the following rules and facts.
+    Note that the system is capable of reasoning about any set of coherent
+    rules and facts; the demo app provides an interface for changing the rules
+    and facts in the database.
+
+    \subsubsection{Rules}
+      \begin{itemize}
+        \item $lawyer(p)\rightarrow rich(p)$
+        \item $rich(p)\rightarrow old(p)$
+        \item $poor(p)\wedge grumpy(p)\rightarrow curmudgeon(p)$
+        \item $rich(p)\wedge male(p)\rightarrow grumpy(p)$
+        \item $wise(p)\wedge old(p)\rightarrow sage(p)$
+        \item $grumpy(p)\wedge old(p)\rightarrow curmudgeon(p)$
+      \end{itemize}
+    \subsubsection{Facts}
+      \begin{itemize}
+        \item $T\rightarrow lawyer(John)$
+        \item $T\rightarrow male(John)$
+        \item $T\rightarrow wise(John)$
+      \end{itemize}
+
+\section{Demo}
+  A running version of the app can be found at \url{http://162.243.111.226:4044}
+  or at \url{royhowie.com:4044}.
+
+\section{Conclusion}
+  This automated reasoning system used a combination of modus ponens and the
+  resolution principle to attempt to solve theorems. However, it was limited to
+  a database in normal form. That is, rules could only be of the form
+  $A_1(p)\wedge\cdots\wedge A_2(p)\rightarrow B(p)$ and queries could only be of
+  the form $predicate(arg_1,\cdots,arg_n)$.
+
+  While an interesting project, life is much more broad. Most rules of life
+  involve disjunction, conjunction, negation, and association. It would be
+  interesting to create an automated reasoning program which at least accepts
+  a ruleset in normal form as opposed to only Horn form.
+
+  Furthermore, the logic surrounding binding and unification was not perfect and
+  ultimately had to be removed from the demo. This allowed for queries such as
+  $lawyer(Mary)$ to be returned as $T$ when only $T\rightarrow lawyer(John)$ was
+  in the database. This is clearly nonsense and should be fixed.
+
+  The program originally implemented unification properly, except it would
+  occasionally cause the program to become ``lost'' when the branching factor
+  was high. This was due to a bug with how the bindings were being stored in
+  memory.
+
+
+
+
+\end{document}
