@@ -1,5 +1,5 @@
 {
-  "name": "app",
+  "name": "csc545-project3",
   "private": true,
   "scripts": {
     "start": "meteor run"

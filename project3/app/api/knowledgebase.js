@@ -5,9 +5,9 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema'
 export const KnowledgeBase = new Mongo.Collection('knowledge-base')
 
 if (Meteor.isServer) {
-  // Meteor.publish('knowledge-base', function knowledgeBasePublication () {
-  //   return KnowledgeBase.find({})
-  // })
+  Meteor.publish('knowledge-base', function knowledgeBasePublication () {
+    return KnowledgeBase.find()
+  })
 }
 
 KnowledgeBase.schema = new SimpleSchema({
@@ -27,4 +27,3 @@ KnowledgeBase.schema = new SimpleSchema({
 })
 
 KnowledgeBase.attachSchema(KnowledgeBase.schema)
-// KnowledgeBase.helpers({})
