@@ -55,6 +55,7 @@ class KnowledgeBase extends Component {
 
     const predicates = this.props.predicates
     const rules = this.props.rules
+
     let lookupById = new Map(predicates.map(p => [p._id, p]))
     let lookupByKey = new Map(predicates.map(p => [p.predicate, p]))
     let lookupByRHS = new Map(
@@ -74,7 +75,6 @@ class KnowledgeBase extends Component {
       let args = pieces[2].split(',')
 
       let TRUE = lookupByKey.get('T')
-      let FALSE = lookupByKey.get('F')
       let LHS = lookupByKey.get(predicate)
 
       if (!LHS) {
@@ -88,7 +88,7 @@ class KnowledgeBase extends Component {
           lookupByKey.get(predicate).args[index]
         ] = arg
       })
-      console.log(list[0].bindings)
+
       let next = null
 
       do {
@@ -103,7 +103,7 @@ class KnowledgeBase extends Component {
           let clone = {
             LHS: [],
             steps: next.steps.concat(next),
-            bindings: next.bindings
+            bindings: Object.assign({}, next.bindings),
           }
 
           // Start with `next.LHS`
@@ -116,40 +116,47 @@ class KnowledgeBase extends Component {
           let newRules = option.LHS.map(id => lookupById.get(id))
           let hasTrue = newRules.find(r => r.predicate === 'T')
 
-          // If there is a T on the LHS
+          // If there is a T on the LHS:
           if (hasTrue) {
-            // Find the predicate which T implies
+            // Find the predicate which T implies.
             let conclusion = lookupById.get(option.RHS)
-            // Find the default arguments for this predicate
-            let RHS_args = lookupByKey.get(conclusion.predicate).args
-            // Check the specific arguments for this T->predicate
+
+            // Find the default arguments for this predicate.
+            // That is [p, q, r] instead of [me, you, it].
             let T_args = conclusion.text.match(/\(([\w,]+)\)/)[1].split(',')
+
+            // Find the specific arguments for this predicate.
+            // That is [me, you, it] instead of [p, q, r].
+            let RHS_args = rules.filter(
+              rule => rule.RHS === conclusion._id && rule.LHS[0] === TRUE._id
+            )[0].text
+            .match(/T:\w+\(([\w,]+)\)/)[1]
+            .split(',')
 
             // Iterate through the arguments and check `next.bindings`.
             // For example, if we have that T -> A(me) and we are substituting
             // into A(p) & B(p) -> C(p) and wish to prove that C(you) is true,
             // then we would check that (bindings[p] = me) == you, which is
             // false, so resolving with T -> A(me) is not an available option.
-            // Not sure how this handles the null case.
             for (let i = 0; i < RHS_args.length; i++) {
-              let key = RHS_args[i]
-              if (next.bindings[key] !== T_args[i]) {
-                // return;
+              let key = T_args[i]
+              if (next.bindings[key] && next.bindings[key] !== RHS_args[i]) {
+                return;
               }
             }
           }
 
           clone.LHS.push(...option.LHS.map(id => lookupById.get(id)))
 
-          // Filter out any `TRUE` on the LHS
+          // Filter out any `TRUE` on the LHS.
           clone.LHS = clone.LHS.filter(p => p._id !== TRUE._id)
 
-          // Add the current statement to be investigated
+          // Add the current statement to be investigated.
           list.push(clone)
         })
       } while (list.length > 0)
 
-      // T -> F has been found, so the theorem was proven
+      // T -> F has been found, so the theorem was proven.
       if (next !== null && next.LHS.length === 0) {
         this.setState({ showQuery: true, error: null, steps: next.steps })
 
@@ -228,6 +235,6 @@ export default createContainer((props) => {
   return {
     predicates: Predicates.find({}).fetch(),
     ready: handle.ready(),
-    rules: Rules.find({}, { sort: { text: 1 } }).fetch(),
+    rules: Rules.find({}, { sort: { text: -1 } }).fetch(),
   }
 }, KnowledgeBase)

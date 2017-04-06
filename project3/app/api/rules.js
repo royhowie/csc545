@@ -31,13 +31,15 @@ if (Meteor.isServer) {
 
         args = args.split(',')
 
-        let object = { text: RHS, predicate, arity: args.length, args }
+        let object = { predicate, arity: args.length }
         let P = Predicates.findOne(object)
+
         let _id = null
         if (P) {
           _id = P._id
         } else {
           object.args = args
+          object.text = RHS
           _id = Predicates.insert(object)
         }
 

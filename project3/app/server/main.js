@@ -5,6 +5,8 @@ import { Rules } from '../api/rules.js'
 Meteor.startup(() => {
   Predicates.remove({})
   Rules.remove({})
-  Predicates.insert({ arity: 0, args: [], predicate: 'T', text: 'T' })
-  Predicates.insert({ arity: 0, args: [], predicate: 'F', text: 'F' })
+  ;[ 'T', 'F' ].forEach(predicate => {
+    if (!Predicates.findOne({ predicate }))
+      Predicates.insert({ arity: 0, args: [], predicate, text: predicate })
+  })
 })
