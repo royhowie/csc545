@@ -1,22 +1,16 @@
 \documentclass{article}
 
-\usepackage[margin=1in]{geometry}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
 \usepackage{amsfonts}
 \usepackage{amsmath}
-% \usepackage{bchart}
-% \usepackage{braket}
-% \usepackage{bytefield}
-% \usepackage{caption}
-% \usepackage{graphicx}
+\usepackage{braket}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
 \usepackage{newclude}
 \usepackage{parskip}
-% \usepackage{pgfplots}
 \usepackage[group-separator={,}]{siunitx}
-% \usepackage{subfig}
 \usepackage{titling}
-\usepackage{hyperref}
-\usepackage{algorithm}
-\usepackage[noend]{algpseudocode}
 
 \renewcommand\labelitemi{$\star$}
 
@@ -24,19 +18,83 @@
 
 \title{\vspace{-1cm}AI Project 3: Simple Automated Reasoning System}
 \author{Roy Howie}
-\date{April 5, 2017}
+\date{April 7, 2017}
 \maketitle
 
 \section{Task}
   Create an automated reasoning system which resolves queries using either modus
   ponens or the resolution principle.
 
+\section{Definitions}
+  \subsection{Horn Database}
+    A horn database is a set of sentences of the form $p_1\wedge\cdots\wedge p_k
+    \rightarrow q$. That is, for each sentence, the antecedent consists of a set
+    of conjuncts and the consequent consists of a single symbol.
+
+    For example, $old(p)\wedge wise(p)\rightarrow sage(p)$ works but $child(p,q)
+    \rightarrow father(q,p)\vee mother(q,p)$ does not.
+
+  \subsection{Modus Ponens}
+    Modus ponens is a complete operation when working with Horn databases which
+    involves the combination of logical sentences.
+
+    More formally, if $p_1\wedge\cdots\wedge p_k\rightarrow q$ and $r_1\wedge
+    \cdots\wedge r_l\rightarrow p_i$, then $p_1\wedge\cdots\wedge p_{i-1}\wedge
+    (r_1\wedge\cdots\wedge r_l)\wedge p_{i+1}\wedge\cdots\wedge p_k\rightarrow
+    q$.
+
+    For example, if $a\wedge b\rightarrow e$ and $c\wedge d\rightarrow a$,
+    then $c\wedge d\wedge b\rightarrow e$.
+
+  \subsection{Backward Chaining via Resolution}
+    This is a search method used which combines sentences in the database in
+    search of a given conclusion.
+
+    For example, suppose we wish to prove $e$. Suppose we know the following
+    facts:
+    \begin{itemize}
+      \item $a\wedge b\rightarrow e$
+      \item $c\wedge d\rightarrow a$
+      \item $T \rightarrow b$
+      \item $T \rightarrow c\wedge d$
+    \end{itemize}
+    We then aim for a contradiction, beginning with $e\rightarrow F$.
+    \begin{align*}
+      e \rightarrow& F                  \tag{assumption}\\
+      a\wedge b\rightarrow& F           \tag{$a\wedge b\rightarrow e$}\\
+      c\wedge d\wedge b\rightarrow& F   \tag{$c\wedge d\rightarrow a$}\\
+      T \wedge b\rightarrow& F          \tag{$T\rightarrow c\wedge d $}\\
+      T \wedge T\rightarrow& F          \tag{$T\rightarrow b$}\\
+      T \rightarrow& F
+    \end{align*}
+    This proves $e$.
+
+  \subsection{Unification}
+    Unification is involved in the combination of sentences when performing
+    backward chaining via resolution. It is best explained via example.
+
+    Suppose we have the following database:
+    \begin{itemize}
+      \item $father(p,q)\rightarrow child(q,p)$
+      \item $T\rightarrow father(John,Alice)$
+    \end{itemize}
+
+    We wish to prove the query $child(Alice,John)$ with backward chaining.
+    We create a binding list $\sigma$ which binds Alice to $q$ and John to $p$.
+    We then resolve $child(q,p)\rightarrow F$ with the first rule in the above
+    database, yielding $father(p,q)\rightarrow F$. We would reach the desired
+    contradiction if we could then use $T\rightarrow father(John,Alice)$. This
+    would require that John was bound to $p$ and Alice to $q$. Checking
+    $\sigma$, this is indeed the case. Hence, $child(Alice,John)$ is true.
+
 \section{Algorithm}
+  \label{alg-pseudo-code}
+  Find below the algorithm used to search a database written in pseudocode.
   \begin{algorithm}
     \begin{algorithmic}[1]
     \Procedure{ResolveQuery}{q}
       \State $L \gets q$ \Comment{$L$ is a list}
-      \While{$length(L)>0$}
+      \While{L is not empty}
         \State $p\gets L[0]$
         \If{$p=T\rightarrow F$}
           \Return success
@@ -59,54 +117,79 @@
     csc545/} under the \texttt{project3/app} directory.
 
   \subsection{Rules \& Facts}
-    The sample knowledge database consisted of the following rules and facts.
-    Note that the system is capable of reasoning about any set of coherent
-    rules and facts; the demo app provides an interface for changing the rules
+    Note that the system is capable of reasoning about any set of coherent rules
+    and facts. Indeed, the demo app provides an interface for changing the rules
     and facts in the database.
 
+    By default, it is loaded with the following rules and facts:
     \subsubsection{Rules}
       \begin{itemize}
+        \item $father(p,q)\rightarrow child(q,p)$
+        \item $father(r,q)\wedge married(r,p)\rightarrow child(q,p)$
         \item $lawyer(p)\rightarrow rich(p)$
+        \item $old(p)\wedge wise(p)\rightarrow sage(p)$
         \item $rich(p)\rightarrow old(p)$
-        \item $poor(p)\wedge grumpy(p)\rightarrow curmudgeon(p)$
-        \item $rich(p)\wedge male(p)\rightarrow grumpy(p)$
-        \item $wise(p)\wedge old(p)\rightarrow sage(p)$
-        \item $grumpy(p)\wedge old(p)\rightarrow curmudgeon(p)$
+        \item $sage(p)\rightarrow clever(p)$
       \end{itemize}
     \subsubsection{Facts}
       \begin{itemize}
+        \item $T\rightarrow father(John,Alice)$
         \item $T\rightarrow lawyer(John)$
-        \item $T\rightarrow male(John)$
+        \item $T\rightarrow married(John,Mary)$
         \item $T\rightarrow wise(John)$
       \end{itemize}
 
 \section{Demo}
-  A running version of the app can be found at \url{http://162.243.111.226:4044}
-  or at \url{royhowie.com:4044}.
+  A running version of the demo can currently be seen at
+  \href{http://162.243.111.226:4044}{\texttt{162.243.111.226:4044}}.
 
 \section{Conclusion}
-  This automated reasoning system used a combination of modus ponens and the
-  resolution principle to attempt to solve theorems. However, it was limited to
-  a database in normal form. That is, rules could only be of the form
-  $A_1(p)\wedge\cdots\wedge A_2(p)\rightarrow B(p)$ and queries could only be of
-  the form $predicate(arg_1,\cdots,arg_n)$.
+  After many hours of toiling away, a simple automated reasoning system (SARS)
+  was born. Currently capable of ``understanding'' an arbitrary set of rules and
+  facts presented in Horn form, SARS is able to respond to queries in a
+  quasi-intelligent manner.
 
-  While an interesting project, life is much more broad. Most rules of life
-  involve disjunction, conjunction, negation, and association. It would be
-  interesting to create an automated reasoning program which at least accepts
-  a ruleset in normal form as opposed to only Horn form.
+  Originally, SARS was very dumb and did not understand how to bind variables.
+  For example, if told $lawyer(p)\rightarrow rich(p)$ and $T\rightarrow
+  laywer(John)$, it would consider both $rich(John)$ and $rich(Alice)$ to be
+  true statements, despite the lack of evidence needed to prove the latter.
+  However, in a moment of profundity, the author was able to teach SARS to
+  understand single variables. Suddenly, the world---or at least that section
+  which consists only of antecedents and consequents with single-argument
+  atoms---was available to SARS.
 
-  Furthermore, the logic surrounding binding and unification was not perfect and
-  ultimately had to be removed from the demo. This allowed for queries such as
-  $lawyer(Mary)$ to be returned as $T$ when only $T\rightarrow lawyer(John)$ was
-  in the database. This is clearly nonsense and should be fixed.
+  However, intelligence is truly relative. SARS was still confused by
+  multiple-argument atoms. To the casual passerby, the fact that SARS was
+  confused by $father(p,q)\rightarrow child(q,p)$ was indeed damning. No one
+  would consider such a machine intelligent! Again, after much struggle, the
+  author was able to teach SARS to understand such statements. But SARS still
+  had much to learn.
 
-  The program originally implemented unification properly, except it would
-  occasionally cause the program to become ``lost'' when the branching factor
-  was high. This was due to a bug with how the bindings were being stored in
-  memory.
+  Indeed, SARS remained puzzled by statements such as $father(r,q)\wedge
+  married(r,p)\rightarrow child(q,p)$ and was unable to understand that
+  $father(r,q)$ is not much different from $father(p,q)$. SARS was unable to
+  reconcile $father(p,q)\rightarrow child(q,p)$ with the aforementioned
+  rule. Once more, the author managed to teach SARS to understand that variables
+  live within the context of a statement. Just because $T\rightarrow
+  father(John,Alice)$ does not necessarily mean the binding list must be $\sigma
+  =\set{q:John,\,p:Alice}$. In truth, it is much more important that John is the
+  first argument of $father$ and Alice the second. SARS learned variable
+  positioning.
 
+  And such is the current circumstance of SARS. And although SARS has come far
+  in its wordly understanding, it has a lot to learn before it's able to to
+  convince anyone of its intelligence.
 
-
+  On a more serious note, SARS was a much larger endeavor than I expected. I
+  quickly learned that data structures deemed useful at the outset either did
+  not carry enough information or did not hold information in an ideal format to
+  solve theorems. Indeed, upon further thought or inspection, I often realized
+  subroutines intended to aid the algorithm provided in Section
+  \ref{alg-pseudo-code} missed important edge cases or approach the problem
+  inefficiently. In hindsight, the algorithm used to search the database when
+  resolving queries could be made much more efficient. SARS could also use a
+  much better database representation of atoms and their respective arguments,
+  which would have made solving the problem mentioned in paragraph 4 of this
+  section much easier.
 
 \end{document}
