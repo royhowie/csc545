@@ -14,6 +14,7 @@ class KnowledgeBase extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      query: null,
       showQuery: false,
       error: null,
       steps: [],
@@ -58,12 +59,25 @@ class KnowledgeBase extends Component {
 
     let lookupById = new Map(predicates.map(p => [p._id, p]))
     let lookupByKey = new Map(predicates.map(p => [p.predicate, p]))
-    let lookupByRHS = new Map(
-      rules.map(r => [lookupById.get(r.RHS).predicate, r])
-    )
+    let lookupByRHS = {}
+    rules.forEach(rule => {
+      let predicate = lookupById.get(rule.RHS).predicate
+      if (predicate in lookupByRHS) {
+        let o = lookupByRHS[predicate]
+        if (o.ids.indexOf(rule._id) === -1) {
+          o.ids.push(rule._id)
+          o.rules.push(rule)
+        }
+      } else {
+        lookupByRHS[predicate] = {
+          ids: [rule._id],
+          rules: [rule],
+        }
+      }
+    })
 
     try {
-      this.setState({ showQuery: false, error: null, steps: [] })
+      this.setState({ query: null, showQuery: false, error: null, steps: [] })
       let format = /(\w+)\(([\w,]+)\)/
 
       if (!format.test(query)) {
@@ -98,74 +112,91 @@ class KnowledgeBase extends Component {
           break
         }
 
+        let LHS_text = next.LHS.map(o => o.text).join('&')
+
         next.LHS.forEach((leftPredicate, index) => {
-          let option = lookupByRHS.get(leftPredicate.predicate)
-          let clone = {
-            LHS: [],
-            steps: next.steps.concat(next),
-            bindings: Object.assign({}, next.bindings),
-          }
+          lookupByRHS[leftPredicate.predicate].rules.forEach(option => {
+            let clone = {
+              LHS: [],
+              steps: next.steps.concat(next),
+              bindings: Object.assign({}, next.bindings),
+            }
 
-          // Start with `next.LHS`
-          clone.LHS.push(...next.LHS)
+            // Start with `next.LHS`
+            clone.LHS.push(...next.LHS)
 
-          // Remove the current LHS predicate being resolved.
-          clone.LHS.splice(index, 1)
+            // Remove the current LHS predicate being resolved.
+            clone.LHS.splice(index, 1)
 
-          // Add all of the LHS of the rule being resolved with.
-          let newRules = option.LHS.map(id => lookupById.get(id))
-          let hasTrue = newRules.find(r => r.predicate === 'T')
+            // Add all of the LHS of the rule being resolved with.
+            let newRules = option.LHS.map(id => lookupById.get(id))
+            let hasTrue = newRules.find(r => r.predicate === 'T')
 
-          // If there is a T on the LHS:
-          if (hasTrue) {
-            // Find the predicate which T implies.
-            let conclusion = lookupById.get(option.RHS)
+            // If there is a T on the LHS:
+            if (hasTrue) {
+              // Find the predicate which T implies.
+              let conclusion = lookupById.get(option.RHS)
 
-            // Find the default arguments for this predicate.
-            // That is [p, q, r] instead of [me, you, it].
-            let T_args = conclusion.text.match(/\(([\w,]+)\)/)[1].split(',')
+              // Find the default arguments for this predicate.
+              // That is [p, q, r] instead of [me, you, it].
+              let T_args = LHS_text.slice(
+                LHS_text.indexOf(conclusion.predicate)
+                + conclusion.predicate.length
+              ).match(/\(([\w,]+)\)/)[1].split(',')
 
-            // Find the specific arguments for this predicate.
-            // That is [me, you, it] instead of [p, q, r].
-            let RHS_args = rules.filter(
-              rule => rule.RHS === conclusion._id && rule.LHS[0] === TRUE._id
-            )[0].text
-            .match(/T:\w+\(([\w,]+)\)/)[1]
-            .split(',')
+              // Find the specific arguments for this predicate.
+              // That is [me, you, it] instead of [p, q, r].
+              let RHS_args = rules.filter(
+                rule => rule.RHS === conclusion._id && rule.LHS[0] === TRUE._id
+              )[0].text
+              .match(/T:\w+\(([\w,]+)\)/)[1]
+              .split(',')
 
-            // Iterate through the arguments and check `next.bindings`.
-            // For example, if we have that T -> A(me) and we are substituting
-            // into A(p) & B(p) -> C(p) and wish to prove that C(you) is true,
-            // then we would check that (bindings[p] = me) == you, which is
-            // false, so resolving with T -> A(me) is not an available option.
-            for (let i = 0; i < RHS_args.length; i++) {
-              let key = T_args[i]
-              if (next.bindings[key] && next.bindings[key] !== RHS_args[i]) {
-                return;
+              // Iterate through the arguments and check `next.bindings`.
+              // For example, if we have that T -> A(me) and we are substituting
+              // into A(p) & B(p) -> C(p) and wish to prove that C(you) is true,
+              // then we would check that (bindings[p] = me) == you, which is
+              // false, so resolving with T -> A(me) is not an available option.
+              for (let i = 0; i < RHS_args.length; i++) {
+                let key = T_args[i]
+                if (clone.bindings[key] && clone.bindings[key] !== RHS_args[i]) {
+                  return
+                } else {
+                  clone.bindings[key] = RHS_args[i]
+                }
               }
             }
-          }
 
-          clone.LHS.push(...option.LHS.map(id => lookupById.get(id)))
+            clone.LHS.push(...option.LHS.map(id => lookupById.get(id)))
 
-          // Filter out any `TRUE` on the LHS.
-          clone.LHS = clone.LHS.filter(p => p._id !== TRUE._id)
+            // Filter out any `TRUE` on the LHS.
+            clone.LHS = clone.LHS.filter(p => p._id !== TRUE._id)
 
-          // Add the current statement to be investigated.
-          list.push(clone)
+            // Add the current statement to be investigated.
+            list.push(clone)
+          })
         })
       } while (list.length > 0)
 
       // T -> F has been found, so the theorem was proven.
       if (next !== null && next.LHS.length === 0) {
-        this.setState({ showQuery: true, error: null, steps: next.steps })
-
+        this.setState({
+          query,
+          showQuery: true,
+          error: null,
+          steps: next.steps
+        })
       // Otherwise, the list is empty/no solution was found.
       } else {
         throw new Meteor.Error('Query could not be proven!')
       }
     } catch (err) {
-      this.setState({ showQuery: true, error: err.error, steps: [] })
+      this.setState({
+        query: null,
+        showQuery: true,
+        error: err.error,
+        steps: []
+      })
     }
   }
 
@@ -175,49 +206,53 @@ class KnowledgeBase extends Component {
     }
 
     return (
-      <div className='col-lg-7'>
-        <h1>Simple Automated Reasoning System</h1>
-        <p>
-          <strong>Rules: </strong>
-          For <code>A(p)&nbsp;&and;&nbsp;B(p)&nbsp;&rarr;&nbsp;C(p)</code>,
-          use  <code>A(p)&B(p):C(p)</code>.
-        </p>
-        <p>
-          <strong>Facts: </strong>
-          Use <code>T</code> for true and <code>F</code> for false.
-        </p>
+      <div>
+        <h1 className='text-center'>Simple Automated Reasoning System</h1>
+        <div className='col-lg-6'>
+          <p>
+            <strong>Rules: </strong>
+            For <code>A(p)&nbsp;&and;&nbsp;B(p)&nbsp;&rarr;&nbsp;C(p)</code>,
+            use <code>A(p)&B(p):C(p)</code>.
+          </p>
+          <p>
+            <strong>Facts: </strong>
+            Use <code>T</code> for true.
+          </p>
 
-        <ul className='rule-list'>
-          {this.renderRules()}
-        </ul>
+          <ul className='rule-list'>
+            {this.renderRules()}
+          </ul>
 
-        <form onSubmit={this.addRule.bind(this)}>
-          <div className='form-group'>
-            <input
-              className='form-control'
-              ref='addRule'
-              id='addRule'
-              placeholder='Hit enter to add a rule.'
-            />
-          </div>
-        </form>
-        <p id='onAddError' className='bg-danger hidden'></p>
-
-        <p>
-          <strong>Query: </strong>
-          Use <code>predicate(arg1,...,argN)</code>.
-        </p>
-        <form onSubmit={this.processQuery.bind(this)}>
-          <div className='form-group'>
-            <input className='form-control' ref='query' id='query'
-              placeholder='Query'/>
-          </div>
-        </form>
-        <QueryResult
-          show={this.state.showQuery}
-          error={this.state.error}
-          steps={this.state.steps}
-        />
+          <form onSubmit={this.addRule.bind(this)}>
+            <div className='form-group'>
+              <input
+                className='form-control'
+                ref='addRule'
+                id='addRule'
+                placeholder='Hit enter to add a rule.'
+              />
+            </div>
+          </form>
+          <p id='onAddError' className='bg-danger hidden'></p>
+        </div>
+        <div className='col-lg-6'>
+          <p>
+            <strong>Query: </strong>
+            Use <code>predicate(arg1,...,argN)</code>.
+          </p>
+          <form onSubmit={this.processQuery.bind(this)}>
+            <div className='form-group'>
+              <input className='form-control' ref='query' id='query'
+                placeholder='Query'/>
+            </div>
+          </form>
+          <QueryResult
+            query={this.state.query}
+            show={this.state.showQuery}
+            error={this.state.error}
+            steps={this.state.steps}
+          />
+        </div>
       </div>
     )
   }

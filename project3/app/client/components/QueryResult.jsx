@@ -1,29 +1,62 @@
 import { Component, PropTypes } from 'react'
 
-const LAST_STEP = { LHS: [{ text: 'T' }] }
+// Transform a set of bindings { p:val_1, q:val_2, ... } into a string of the
+// form 'p=val_1, q=val_2, ...'
+function formatBindings (o) {
+  return Object.keys(o).map(key => `${key}=${o[key]}`).join(', ')
+}
 
 export default class QueryResult extends Component {
-  renderSteps () {
-    return this.props.steps.concat(LAST_STEP).map((step, index) => {
-      return (
-        <div key={index}>
+  renderLHS (LHS) {
+    return (
+      <code>
+        {LHS[0].text}
+        {
+          LHS.slice(1).map((piece, i) => {
+            return <span key={i}>&nbsp;&and;&nbsp;{piece.text}</span>
+          })
+        }
+        &nbsp;&rarr;&nbsp;F
+      </code>
+    )
+  }
+
+  renderRow (step, index) {
+    return (
+      <tr key={index}>
+        <td>{index + 1}</td>
+        <td>{this.renderLHS(step.LHS)}</td>
+        <td>
           <code>
-            {index}.
-            &nbsp;
-            {step.LHS[0].text}
-            {
-              step.LHS.slice(1).map((piece, i) => {
-                return <span key={i}>&nbsp;&and;&nbsp;{piece.text}</span>
-              })
-            }
-            &nbsp;
-            &rarr;
-            &nbsp;
-            F
+            {`{ ${formatBindings(step.bindings)} }`}
           </code>
-        </div>
-      )
-    })
+        </td>
+      </tr>
+    )
+  }
+
+  renderSteps () {
+    const rows = this.props.steps.map((step, i) => this.renderRow(step, i))
+
+    return (
+      <table className='table table-condensed'>
+        <thead>
+          <tr>
+            <th>step</th>
+            <th>sentence</th>
+            <th>bindings</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows}
+          <tr key={rows.length+1}>
+            <td>{rows.length+1}</td>
+            <td><code>T&nbsp;&rarr;&nbsp;F</code></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    )
   }
 
   render () {
@@ -49,16 +82,20 @@ export default class QueryResult extends Component {
       )
     }
 
-    return <div className='bg-success query'>
-      {this.renderSteps()}
-      <p>
-        As this is a contradiction: <code>QED</code>.
-      </p>
-    </div>
+    return (
+      <div className='query'>
+        {this.renderSteps()}
+        <p>
+          This is a contradiction, so
+          <code>{this.props.query}</code> has been proven.
+        </p>
+      </div>
+    )
   }
 }
 
 QueryResult.propTypes = {
+  query: PropTypes.string,
   show: PropTypes.bool.isRequired,
   error: PropTypes.string,
   steps: PropTypes.array.isRequired,
